@@ -1,0 +1,32 @@
+{
+  "run_id": "run_006",
+  "pipeline": "main-cicd",
+  "timestamp": "2026-05-06T10:00:00Z",
+  "stages": [
+    {
+      "name": "checkout",
+      "status": "success",
+      "duration_minutes": 1.7
+    },
+    {
+      "name": "build",
+      "status": "success",
+      "duration_minutes": 9.6
+    },
+    {
+      "name": "test",
+      "status": "success",
+      "duration_minutes": 19.1
+    },
+    {
+      "name": "scan",
+      "status": "success",
+      "duration_minutes": 10.1
+    },
+    {
+      "name": "deploy",
+      "status": "success",
+      "duration_minutes": 5.7
+    }
+  ]
+}

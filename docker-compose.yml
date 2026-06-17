@@ -1,0 +1,8 @@
+services:
+  ci-inspector:
+    build: .
+    volumes:
+      - ./sample/sample-repo:/repo:ro
+      - ./sample/config.yaml:/config.yaml:ro
+      - ./reports:/reports
+    command: ["/repo", "/config.yaml", "--output", "/reports/inspection-report.md"]
