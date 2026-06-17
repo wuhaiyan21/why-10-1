@@ -1,9 +1,49 @@
 #!/usr/bin/env python3
 import argparse
+import io
 import json
+import locale
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
+
+os.environ.setdefault("PYTHONIOENCODING", "utf-8")
+
+
+def fix_stdout_encoding():
+    if sys.platform == "win32":
+        try:
+            import ctypes
+            ctypes.windll.kernel32.SetConsoleOutputCP(65001)
+            ctypes.windll.kernel32.SetConsoleCP(65001)
+        except Exception:
+            pass
+
+    pref_enc = locale.getpreferredencoding(False) or "utf-8"
+    try:
+        if hasattr(sys.stdout, "buffer"):
+            sys.stdout = io.TextIOWrapper(
+                sys.stdout.buffer,
+                encoding=pref_enc,
+                errors="replace",
+                line_buffering=True,
+            )
+    except Exception:
+        pass
+    try:
+        if hasattr(sys.stderr, "buffer"):
+            sys.stderr = io.TextIOWrapper(
+                sys.stderr.buffer,
+                encoding=pref_enc,
+                errors="replace",
+                line_buffering=True,
+            )
+    except Exception:
+        pass
+
+
+fix_stdout_encoding()
 
 import yaml
 
@@ -244,6 +284,7 @@ def generate_report(stats: dict, anomalies: dict, dep_issues: list[dict], config
         lines.append(f"### {name}{mark}")
         lines.append(f"```\n{bar}\n```")
         lines.append(f"- 平均耗时: {stage_stat['avg_duration_minutes']} 分钟 (上限: {limit} 分钟)")
+        lines.append(f"- 累计失败次数: {stage_stat['failure_count']}/{stage_stat['total_count']}")
         lines.append(f"- 最近10次失败率: {stage_stat['failure_rate_last_10']}%")
         lines.append(f"- 最近5次执行次数: {stage_stat['executed_in_last_5']}/{stage_stat['total_in_last_5']}")
         lines.append("")
@@ -365,8 +406,7 @@ def main():
             f.write(report)
         print(f"报告已生成: {output_path}")
     else:
-        sys.stdout.buffer.write(report.encode("utf-8", errors="replace"))
-        sys.stdout.buffer.write(b"\n")
+        print(report)
 
 
 if __name__ == "__main__":
