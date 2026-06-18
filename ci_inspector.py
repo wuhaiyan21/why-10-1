@@ -323,24 +323,14 @@ def generate_report(stats: dict, anomalies: dict, insufficient_data: dict, dep_i
 
     lines.append("## 异常项清单")
     lines.append("")
-    if insufficient_data:
-        for name, info in insufficient_data.items():
-            lines.append(f"### [数据不足] {name}")
-            lines.append(f"- 最近10次实际执行 {info['executed']} 次，未达到最小样本要求 {info['required']} 次，失败率判定跳过")
-            lines.append("")
     if anomalies:
         for name, issues in anomalies.items():
             lines.append(f"### [X] {name}")
             for issue in issues:
                 lines.append(f"- {issue}")
             lines.append("")
-    if not anomalies and not insufficient_data:
+    else:
         lines.append("[OK] 未发现异常")
-        lines.append("")
-    elif anomalies and insufficient_data:
-        pass
-    elif insufficient_data:
-        lines.append("> 注: 数据不足项不计入失败率异常")
         lines.append("")
 
     if dep_issues:
@@ -448,13 +438,8 @@ def parse_previous_report(report_path: str) -> set[str]:
     return previous_anomalies
 
 
-def compare_anomalies(current_anomalies: dict, previous_anomalies: set[str], dep_issues: list[dict]) -> dict:
-    dep_anomaly_stages = set()
-    for issue in dep_issues:
-        dep_anomaly_stages.add(issue["failed_stage"])
-        dep_anomaly_stages.add(issue["succeeded_stage"])
-
-    all_current = set(current_anomalies.keys()) | dep_anomaly_stages
+def compare_anomalies(current_anomalies: dict, previous_anomalies: set[str]) -> dict:
+    all_current = set(current_anomalies.keys())
 
     persistent = sorted(list(all_current & previous_anomalies))
     new_anomalies = sorted(list(all_current - previous_anomalies))
@@ -541,7 +526,7 @@ def main():
     comparison = None
     if args.compare:
         previous_anomalies = parse_previous_report(args.compare)
-        comparison = compare_anomalies(anomalies, previous_anomalies, dep_issues)
+        comparison = compare_anomalies(anomalies, previous_anomalies)
 
     report = generate_report(stats, anomalies, insufficient_data, dep_issues, config, results, comparison)
 
