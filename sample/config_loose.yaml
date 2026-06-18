@@ -1,0 +1,28 @@
+pipeline:
+  name: main-cicd
+
+stages:
+  - name: checkout
+    max_avg_duration_minutes: 100
+    max_failure_rate_percent: 100
+    min_sample_count: 1
+
+  - name: build
+    max_avg_duration_minutes: 100
+    max_failure_rate_percent: 100
+    min_sample_count: 1
+
+  - name: test
+    max_avg_duration_minutes: 100
+    max_failure_rate_percent: 100
+    min_sample_count: 1
+
+  - name: scan
+    max_avg_duration_minutes: 100
+    max_failure_rate_percent: 100
+    min_sample_count: 1
+
+  - name: deploy
+    max_avg_duration_minutes: 100
+    max_failure_rate_percent: 100
+    min_sample_count: 1
